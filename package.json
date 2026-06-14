@@ -1,0 +1,19 @@
+{
+  "name": "calliq-bot",
+  "version": "1.0.0",
+  "description": "CallIQ - Bot de inteligencia comercial. Entra a las llamadas, transcribe, analiza y envia el informe Word por email.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "axios": "^1.7.7",
+    "docx": "^9.0.2",
+    "nodemailer": "^6.9.15",
+    "dotenv": "^16.4.5",
+    "body-parser": "^1.20.3"
+  }
+}
