@@ -92,22 +92,22 @@ app.post("/api/webhook/recall", async (req, res) => {
     if (!llamada) return; // bot que no lanzamos nosotros, o ya procesado
 
     // --- Cambios de estado del bot (entra, empieza a grabar, termina) ---
-    if (event === "bot.status_change") {
-      const status = data?.status?.code;
-      console.log(`[${botId}] estado: ${status}`);
+    // Recall.ai manda un evento distinto por cada estado, en vez de un
+    // unico "bot.status_change" con un codigo dentro. Por eso miramos
+    // directamente el nombre del evento.
+    console.log(`[${botId}] evento: ${event}`);
 
-      if (status === "in_call_recording" && !llamada.consentimientoEnviado) {
-        llamada.consentimientoEnviado = true;
-        llamada.inicio = Date.now();
-        const mensaje = process.env.CONSENT_MESSAGE || "Esta llamada se esta grabando y transcribiendo con fines de calidad y analisis comercial.";
-        // Pequeña espera para asegurarnos de que el chat esta listo
-        setTimeout(() => recall.enviarMensajeChat(botId, mensaje), 3000);
-      }
+    if (event === "bot.in_call_recording" && !llamada.consentimientoEnviado) {
+      llamada.consentimientoEnviado = true;
+      llamada.inicio = Date.now();
+      const mensaje = process.env.CONSENT_MESSAGE || "Esta llamada se esta grabando y transcribiendo con fines de calidad y analisis comercial.";
+      // Pequeña espera para asegurarnos de que el chat esta listo
+      setTimeout(() => recall.enviarMensajeChat(botId, mensaje), 3000);
+    }
 
-      if ((status === "call_ended" || status === "done") && !llamada.procesada) {
-        llamada.procesada = true;
-        procesarLlamadaFinalizada(botId, llamada).catch((e) => console.error(`[${botId}] Error procesando la llamada:`, e));
-      }
+    if ((event === "bot.call_ended" || event === "bot.done") && !llamada.procesada) {
+      llamada.procesada = true;
+      procesarLlamadaFinalizada(botId, llamada).catch((e) => console.error(`[${botId}] Error procesando la llamada:`, e));
     }
 
     // --- Fragmentos de transcripcion en tiempo real ---
